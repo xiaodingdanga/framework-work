@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+	<!-- 不被sitemesh3.0装饰的路径 -->
+	<!-- 登陆引导页 -->
+	<mapping path="/index.jsp" exclue="true" />
+	<!-- 登陆页 -->
+	<mapping path="/login/tologin" exclue="true" />
+	<!-- 微信端页面 -->
+	<mapping path="/wx/**" exclue="true" />
+	<mapping path="/wx*/**" exclue="true" />
+	<!-- 商品标签打印页面 -->
+	<!-- 被sitemesh3.0装饰的路径 -->
+	<!-- 全局默认装饰器 -->
+	<mapping path="/*" decorator="/WEB-INF/view/layouts/main.jsp" />
+	<!-- 单独装饰，所有编辑页面 -->
+	<mapping path="/**/*tree" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*toadd" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*toedit" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*setpermission" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*getuser" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*look" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*set" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*check" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*imports" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*deal" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*choose" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*info" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<mapping path="/**/*apply" decorator="/WEB-INF/view/layouts/blank.jsp" />
+	<!-- 授权页面 -->
+	<mapping path="/login/license" decorator="/WEB-INF/view/layouts/blank.jsp" />
+
+</sitemesh>  

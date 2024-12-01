@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.framework.system.dao.UlrDao">
+	<!-- 使用二级缓存 <cache/> -->
+	<!-- table表 -->
+	<sql id="table">
+		sys_ulr
+	</sql>
+	<sql id="tableuser">
+		sys_user
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,userid,roleid
+	</sql>
+	<insert id="save" parameterType="map" flushCache="true" timeout="20000">
+		insert into
+		<include refid="table" />
+		(
+		<include refid="column" />
+		) values(#{id},#{userid},#{roleid} )
+	</insert>
+	<!-- 根据角色ID查询 -->
+	<select id="findUsersByRoleid" resultType="map" parameterType="String"
+		useCache="true" flushCache="false" timeout="10000">
+		select ulr.userid,u.name
+		from
+		<include refid="table" />
+		ulr
+		left join
+		<include refid="tableuser" />
+		u on ulr.userid=u.id
+		<where>
+			<if test="roleid!=null and roleid!=''">
+				ulr.roleid=#{roleid}
+			</if>
+			and u.isdel!='1'
+		</where>
+		ORDER BY u.sort asc
+	</select>
+	<!-- 根据用户ID批量删除 -->
+	<delete id="deleteByUserIds" parameterType="String" flushCache="true"
+		timeout="20000">
+		delete from
+		<include refid="table" />
+		where userid in
+		<foreach collection="array" index="index" item="item" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<!-- 根据角色ID删除 -->
+	<delete id="deleteByRoleIds" parameterType="String" flushCache="true"
+		timeout="20000">
+		delete from
+		<include refid="table" />
+		where roleid in
+		<foreach collection="array" index="index" item="item" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	<!-- 保存 -->
+	<insert id="batchSave" parameterType="list" flushCache="true"
+		timeout="20000">
+		insert into
+		<include refid="table" />
+		(
+		<include refid="column" />
+		) values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.id},#{item.userid},#{item.roleid})
+		</foreach>
+	</insert>
+</mapper>  

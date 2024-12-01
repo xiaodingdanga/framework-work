@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.framework.system.dao.AccountRecordDao">
+	<!-- 使用二级缓存 <cache/> -->
+	<!-- table表 -->
+	<sql id="table">
+		account_record
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,customerid,userid,classify,amount,pay_in,paymentid,goodsid,ticketid,code,salegoodsid,saleticketid,salecardid,status,creattime
+	</sql>
+	<!-- 根据ID查询实例 -->
+	<select id="findById" resultType="map" parameterType="string"
+		useCache="true" flushCache="false" timeout="10000">
+		select
+		<include refid="column" />
+		from
+		<include refid="table" />
+		where id=#{id}
+	</select>
+	<!-- 预售票明细查询根据条件获取总数 -->
+	<select id="getCountByParam" resultType="int" useCache="true"
+		flushCache="false" timeout="10000">
+		select COUNT(DISTINCT r.id) as count
+		from (select
+		a.*,st.distributorid,st.price from
+		account_record as a left join
+		sale_ticket as st on
+		st.id=a.saleticketid where a.classify=1 and
+		st.distributorid is not
+		null and st.distributorid!='') as r
+		left join
+		distributor as d on
+		r.distributorid=d.id
+		left join ticket as t on
+		r.ticketid=t.id
+		left join
+		sys_user as u on r.userid=u.id
+		left join
+		payment_mode as p on
+		r.paymentid=p.id
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid=#{paymentid}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status=#{status}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="dname!=null and dname!=''">
+				and d.name like CONCAT('%',#{dname},'%')
+			</if>
+		</where>
+	</select>
+	<!-- 预售票明细根据条件分页查询 -->
+	<select id="findPageByParam" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.*,d.name as dname,t.name as ticketname,p.name as pname,u.name
+		as
+		username from (select a.*,st.distributorid,st.price from
+		account_record as a left join sale_ticket as st on
+		st.id=a.saleticketid where a.classify=1 and st.distributorid is not
+		null and st.distributorid!='') as r
+		left join distributor as d on
+		r.distributorid=d.id
+		left join ticket as t on r.ticketid=t.id
+		left join
+		sys_user as u on r.userid=u.id
+		left join payment_mode as p on
+		r.paymentid=p.id
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid=#{paymentid}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status=#{status}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="dname!=null and dname!=''">
+				and d.name like CONCAT('%',#{dname},'%')
+			</if>
+		</where>
+		order by r.creattime desc limit #{start},#{pageSize}
+	</select>
+	<!-- 预售票明细根据条件查询所有 -->
+	<select id="findAllByParam" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.*,d.name as dname,t.name as ticketname,p.name as pname,u.name
+		as
+		username from (select a.*,st.distributorid,st.price from
+		account_record as a left join sale_ticket as st on
+		st.id=a.saleticketid where a.classify=1 and st.distributorid is not
+		null and st.distributorid!='') as r
+		left join distributor as d on
+		r.distributorid=d.id
+		left join ticket as t on r.ticketid=t.id
+		left join
+		sys_user as u on r.userid=u.id
+		left join payment_mode as p on
+		r.paymentid=p.id
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid=#{paymentid}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status=#{status}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="dname!=null and dname!=''">
+				and d.name like CONCAT('%',#{dname},'%')
+			</if>
+		</where>
+		order by r.creattime desc
+	</select>
+	<!-- 保存 -->
+	<insert id="save" parameterType="map" flushCache="true" timeout="20000">
+		insert into
+		<include refid="table" />
+		(id,customerid,userid,classify,amount,pay_in,paymentid,goodsid,ticketid,code,salegoodsid,saleticketid,salecardid,status)
+		values(#{id},#{customerid},#{userid},#{classify},#{amount},#{pay_in},#{paymentid},#{goodsid},#{ticketid},#{code},#{salegoodsid},#{saleticketid},#{salecardid},#{status})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="String" flushCache="true"
+		timeout="20000">
+		delete from
+		<include refid="table" />
+		where id=#{id}
+	</delete>
+	<!-- 查询所有 -->
+	<select id="findAll" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select
+		<include refid="column" />
+		from
+		<include refid="table" />
+	</select>
+	<!-- 押金项目数量统计 -->
+	<select id="findItemNum" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.ticketname,sum(r.num) as num from (select a.*,t.`name` as
+		ticketname,s.num as num
+		from
+		<include refid="table" />
+		as a
+		left join ticket as t on a.ticketid=t.id
+		left join sale_ticket as s
+		on a.saleticketid=s.id
+		<where>
+			a.pay_in = 0 and t.status = 1 and
+			t.isdel != 1 and s.status = 0
+			<if test="customerid!=null and customerid!=''">
+				and a.customerid=#{customerid}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and a.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and a.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="itemname!=null and itemname!=''">
+				and t.name like CONCAT('%',#{itemname},'%')
+			</if>
+		</where>
+		) as r group by r.ticketid
+	</select>
+</mapper>  

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.lx.framework.system.dao.PermDao">
+	<!-- 使用二级缓存
+	<cache/> -->
+	<!-- table表-->
+	<sql id="table">
+		sys_perm
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,roleid,menuid,button
+	</sql>
+	<!-- 根据角色ID查询 -->
+	<select id="findByRoleId" resultType="map" parameterType="String" useCache="true" flushCache="false" timeout="10000">
+		select <include refid="column"/> from <include refid="table"/> 
+		<where>
+			roleid=#{roleid}
+		</where>
+	</select>
+	<!-- 根据菜单ID删除 -->
+    <delete id="deleteByMenuId" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where menuid=#{menuid}
+    </delete>
+	<!-- 根据角色ID删除 -->
+    <delete id="deleteByRoleIds" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where roleid in 
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">         
+        	#{item}  
+        </foreach>
+    </delete>
+	<!-- 保存 -->
+	<insert id="batchSave" parameterType="list" flushCache="true" timeout="20000"> 
+		insert into <include refid="table"/>(<include refid="column"/>) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.id},#{item.roleid},#{item.menuid},#{item.button})   
+		</foreach>
+    </insert>
+</mapper>  

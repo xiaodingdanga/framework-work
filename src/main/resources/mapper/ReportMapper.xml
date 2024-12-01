@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.framework.system.dao.ReportDao">
+	<!-- 商品销售统计 -->
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findSaleGoodsCountByParam" resultType="int"
+		useCache="true" flushCache="false" timeout="10000">
+		select COUNT(DISTINCT gs.id) as count
+		from sale_goods gs
+		left join
+		customer as c on gs.customerid = c.id
+		left join sys_user as s on
+		s.id=gs.userid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and gs.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				AND s.id=#{username}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				AND gs.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				AND gs.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				AND gs.paymentid=#{paymentid}
+			</if>
+		</where>
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 商品销售统计 -->
+	<select id="findSaleGoodsPageByParam" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select gs.*,c.name as customername,s.name as username,g.name as
+		goodsname
+		from sale_goods gs
+		left join customer as c on gs.customerid =
+		c.id
+		left join sys_user as s on s.id=gs.userid
+		left join goods as g on
+		g.id=gs.goodsid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and gs.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				AND s.id=#{username}
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				AND g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				AND gs.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				AND gs.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				AND gs.paymentid=#{paymentid}
+			</if>
+		</where>
+		order by gs.creattime desc
+		limit #{start},#{pageSize}
+	</select>
+	<!-- 商品销售日报导出lichuang -->
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findSaleGoodsExport" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select gs.*,c.name as customername,s.name as username,g.name as
+		goodsname
+		from sale_goods gs
+		left join customer as c on gs.customerid =
+		c.id
+		left join sys_user as s on s.id=gs.userid
+		left join goods as g on
+		g.id=gs.goodsid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and gs.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				AND s.id=#{username}
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				AND g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				AND gs.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				AND gs.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				AND gs.paymentid=#{paymentid}
+			</if>
+		</where>
+		order by gs.creattime desc
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map left join card_config as cc on cc.id=r.salecardid -->
+	<select id="findRecordCountByParam" resultType="int" useCache="true"
+		flushCache="false" timeout="10000">
+		select COUNT(DISTINCT r.id) as count
+		from account_record r
+		left join
+		customer as c on r.customerid = c.id
+		left join sys_user as u on
+		r.userid = u.id
+		left join goods as g on g.id = r.goodsid
+		left join
+		ticket as t on t.id = r.ticketid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				and u.name like CONCAT('%',#{username},'%')
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				and g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="ticketname!=null and ticketname!=''">
+				and t.name like CONCAT('%',#{ticket},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid=#{paymentid}
+			</if>
+			<if test="pay_in!=null and pay_in!=''">
+				and r.pay_in=#{pay_in}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify=#{classify}
+			</if>
+			<if test="code!=null and code!=''">
+				and r.code = #{code}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status = #{status}
+			</if>
+		</where>
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 商品销售统计 -->
+	<select id="findRecordPageByParam" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.*,g.name as goodsname,t.name as ticketname,c.name as
+		customername,u.name as username,p.name as payment
+		from account_record r
+		left join customer
+		as c on r.customerid = c.id
+		left join sys_user as u
+		on r.userid = u.id
+		left join goods as g on g.id = r.goodsid
+		left join
+		payment_mode as p on p.id = r.paymentid
+		left join ticket as t on t.id =
+		r.ticketid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				and u.name like CONCAT('%',#{username},'%')
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				and g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="ticketname!=null and ticketname!=''">
+				and t.name like CONCAT('%',#{ticketname},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid = #{paymentid}
+			</if>
+			<if test="pay_in!=null and pay_in!=''">
+				and r.pay_in = #{pay_in}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify = #{classify}
+			</if>
+			<if test="code!=null and code!=''">
+				and r.code = #{code}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status = #{status}
+			</if>
+		</where>
+		order by
+		r.classify,r.ticketid,r.code,r.goodsid,r.paymentid,r.creattime limit
+		#{start},#{pageSize}
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map cc.name as cardname, -->
+	<select id="findRecordExport" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.*,g.name as goodsname,t.name as ticketname,c.name as
+		customername,u.name as username,p.name as payment
+		from account_record r
+		left join customer
+		as c on r.customerid = c.id
+		left join sys_user as u
+		on r.userid = u.id
+		left join goods as g on g.id = r.goodsid
+		left join
+		payment_mode as p on p.id = r.paymentid
+		left join ticket as t on t.id =
+		r.ticketid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				and u.name like CONCAT('%',#{username},'%')
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				and g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="ticketname!=null and ticketname!=''">
+				and t.name like CONCAT('%',#{ticketname},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid=#{paymentid}
+			</if>
+			<if test="pay_in!=null and pay_in!=''">
+				and r.pay_in=#{pay_in}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify=#{classify}
+			</if>
+			<if test="code!=null and code!=''">
+				and r.code = #{code}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status = #{status}
+			</if>
+		</where>
+		order by
+		r.classify,r.ticketid,r.code,r.goodsid,r.paymentid,r.creattime
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 商品销售统计 -->
+	<select id="findUsersByRole" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select su.name as username,su.id as userid
+		from sys_user as su
+		left join
+		sys_ulr as sur on su.id =sur.userid
+		left join sys_role as sr on sr.id
+		=sur.roleid
+		<where>
+			su.isdel!='1'
+			and sur.roleid='3'
+			<if test="customerid!=null and customerid!=''">
+				and sr.customerid=#{customerid}
+			</if>
+		</where>
+		order by
+		su.id
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 商品销售统计 -->
+	<select id="findTotalMenoy" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select r.pay_in,SUM(r.amount) as total
+		from account_record r
+		left join
+		customer
+		as c on r.customerid = c.id
+		left join sys_user as u
+		on r.userid
+		= u.id
+		left join goods as g on g.id = r.goodsid
+		left join
+		payment_mode as
+		p on p.id = r.paymentid
+		left join ticket as t on t.id =
+		r.ticketid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="username!=null and username!=''">
+				and u.name like CONCAT('%',#{username},'%')
+			</if>
+			<if test="goodsname!=null and goodsname!=''">
+				and g.name like CONCAT('%',#{goodsname},'%')
+			</if>
+			<if test="ticketname!=null and ticketname!=''">
+				and t.name like CONCAT('%',#{ticketname},'%')
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="paymentid!=null and paymentid!=''">
+				and r.paymentid = #{paymentid}
+			</if>
+			<if test="pay_in!=null and pay_in!=''">
+				and r.pay_in = #{pay_in}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify = #{classify}
+			</if>
+			<if test="code!=null and code!=''">
+				and r.code = #{code}
+			</if>
+			<if test="status!=null and status!=''">
+				and r.status = #{status}
+			</if>
+		</where>
+		group by pay_in
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 单项日结查询 -->
+	<select id="findDailySettlement" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select sum(if(r.pay_in=1,r.amount*-1,r.amount)) as
+		amount,r.classify,r.paymentid,c.name as
+		customername,u.name as
+		username,p.name as payment from account_record
+		as r
+		left join customer
+		as c on r.customerid = c.id
+		left join sys_user
+		as u on r.userid = u.id
+		left join payment_mode as p on p.id =
+		r.paymentid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="userid!=null and userid!=''">
+				and r.userid=#{userid}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify = #{classify}
+			</if>
+		</where>
+		group by r.userid,r.paymentid order by
+		r.userid,r.paymentid,r.creattime
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map 单项日结查询 -->
+	<select id="findDailySettlementReport" resultType="map"
+		useCache="true" flushCache="false" timeout="10000">
+		select sum(if(r.pay_in=1,r.amount*-1,r.amount)) as amount,
+		case
+		r.classify when 1 then '售票收入' when 2 then '押金收入' when 3 then '商品销售'
+		end as classify,r.userid,r.paymentid,c.name as customername,u.name as
+		username,p.name as payment
+		from account_record as r
+		left join customer
+		as c on r.customerid = c.id
+		left join sys_user as u on r.userid = u.id
+		left join payment_mode as p on p.id = r.paymentid
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				and r.customerid=#{customerid}
+			</if>
+			<if test="userid!=null and userid!=''">
+				and r.userid=#{userid}
+			</if>
+			<if test="startdate!=null and startdate!=''">
+				and r.creattime >= #{startdate}
+			</if>
+			<if test="enddate!=null and enddate!=''">
+				and r.creattime <![CDATA[ <= ]]>
+				#{enddate}
+			</if>
+			<if test="classify!=null and classify!=''">
+				and r.classify = #{classify}
+			</if>
+		</where>
+		group by r.classify,r.userid,r.paymentid
+		order by
+		r.userid,r.classify,r.paymentid,r.creattime
+	</select>
+</mapper>  

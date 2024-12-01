@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.lx.framework.system.dao.UserDao">
+	<!-- 使用二级缓存
+	<cache/> -->
+	<!-- table表-->
+	<sql id="table">
+		sys_user
+	</sql>
+	<sql id="tableuld">
+		sys_uld
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,account,password,name,tel,email,isdel,des,sort,customerid
+	</sql>
+	<!-- 根据账号查询实例 -->
+	<select id="getByAccount" resultType="map" parameterType="String" useCache="true" flushCache="false" timeout="10000">
+		select u.id,u.account,u.password,u.name,u.tel,u.email,u.isdel,u.des,u.sort,u.customerid,c.name as customername
+		from <include refid="table"/> u 
+		left join customer as c on c.id=u.customerid
+		<where>
+			u.account=#{account} and u.isdel!='1'
+		</where>
+	</select>
+	<!-- 根据条件查询 -->
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findPageByParam" resultType="map" useCache="true" flushCache="false" timeout="10000">
+		select u.id,u.account,u.password,u.name,u.tel,u.email,u.isdel,u.des,u.sort,u.customerid,c.name as customername
+		from <include refid="table"/> u 
+		left join customer as c on c.id=u.customerid
+		<where>
+			<if test="account!=null and account!=''">
+				u.account like CONCAT('%',#{account},'%')
+			</if>
+			<if test="name!=null and name!=''">
+				and u.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="tel!=null and tel!=''">
+				and u.tel like CONCAT('%',#{tel},'%')
+			</if>
+			<if test="email!=null and email!=''">
+				and u.email like CONCAT('%',#{email},'%')
+			</if>
+			<if test="userid!=null and userid!=''">
+				and u.id!=#{userid}
+			</if>
+			<if test="customername!=null and customername!=''">
+				and c.name like CONCAT('%',#{customername},'%')
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and u.customerid=#{customerid} 
+			</if>
+			and u.id!='1' 
+			and u.isdel!='1'
+		</where>
+		GROUP BY u.id 
+		ORDER BY u.sort asc 
+		limit #{start},#{pageSize}
+	</select>
+	<!-- 根据条件查询总数 -->
+	<select id="getCountByParam" resultType="int" useCache="true" flushCache="false" timeout="10000">
+		select count(DISTINCT u.id) 
+		from <include refid="table"/> u 
+		left join customer as c on c.id=u.customerid
+		<where>
+			<if test="account!=null and account!=''">
+				u.account like CONCAT('%',#{account},'%')
+			</if>
+			<if test="name!=null and name!=''">
+				and u.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="tel!=null and tel!=''">
+				and u.tel like CONCAT('%',#{tel},'%')
+			</if>
+			<if test="email!=null and email!=''">
+				and u.email like CONCAT('%',#{email},'%')
+			</if>
+			<if test="userid!=null and userid!=''">
+				and u.id!=#{userid}
+			</if>
+			<if test="customername!=null and customername!=''">
+				and c.name like CONCAT('%',#{customername},'%')
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and u.customerid=#{customerid} 
+			</if>
+			and u.id!='1' 
+			and u.isdel!='1'
+		</where>
+	</select>
+	<!-- 获取排序最大值 -->
+	<select id="getMaxSort" resultType="int" useCache="true" flushCache="false" timeout="10000">
+		select IFNULL(MAX(sort),0) as max from <include refid="table"/>
+	</select>
+	<!-- 验证账号是否重复 -->
+	<select id="checkName" resultType="boolean" parameterType="map" useCache="true" flushCache="false" timeout="10000">
+		select count(DISTINCT id) as count from <include refid="table"/>  u
+		<where>
+    		<if test="id!=null and id!=''">
+    			id!=#{id}
+    		</if>
+    		<if test="account!=null and account!=''">
+    			and account=#{account}  
+    		</if>
+    		and u.isdel!='1'
+    	</where>
+	</select>
+	<!-- 保存 -->
+	<insert id="save" parameterType="map" flushCache="true" timeout="20000"> 
+    	insert into <include refid="table"/>(<include refid="column"/>) values(#{id},#{account},#{password},#{name},#{tel},#{email},#{isdel},#{des},#{sort},#{customerid})   
+    </insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="map" flushCache="true" timeout="20000">    
+    	update <include refid="table"/>
+    	<set>
+			account=#{account},
+			name=#{name},
+			tel=#{tel},
+			email=#{email},
+			isdel=#{isdel},
+			des=#{des},
+			sort=#{sort},
+			password=#{password},
+			customerid=#{customerid}
+		</set>
+    	where id=#{id}
+    </update>
+	<!-- 重置密码 -->
+	<update id="resetPassword" parameterType="map" flushCache="true" timeout="20000">    
+    	update <include refid="table"/>
+    	<set>
+			password=#{password}
+		</set>
+    	where id=#{id}
+    </update>
+	<!-- 根据ID查询实例 -->
+	<select id="findById" resultType="map" parameterType="String" useCache="true" flushCache="false" timeout="10000">
+		select u.id,u.account,u.password,u.name,u.tel,u.email,u.isdel,u.des,u.sort,u.customerid,c.name as customername
+		from <include refid="table"/> u 
+		left join customer as c on c.id=u.customerid
+		<where>
+			u.id=#{id}
+		</where>
+	</select>
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findAllByParam" resultType="map" useCache="true" flushCache="false" timeout="10000">
+		select u.id,u.account,u.password,u.name,u.tel,u.email,u.isdel,u.des,u.sort,u.customerid,c.name as customername
+		from <include refid="table"/> u 
+		left join customer as c on c.id=u.customerid
+		<where>
+			<if test="account!=null and account!=''">
+				u.account like CONCAT('%',#{account},'%')
+			</if>
+			<if test="name!=null and name!=''">
+				and u.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="tel!=null and tel!=''">
+				and u.tel like CONCAT('%',#{tel},'%')
+			</if>
+			<if test="email!=null and email!=''">
+				and u.email like CONCAT('%',#{email},'%')
+			</if>
+			<if test="userid!=null and userid!=''">
+				and u.id!=#{userid}
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and u.customerid=#{customerid}
+			</if>
+			<if test="customername!=null and customername!=''">
+				and c.name like CONCAT('%',#{customername},'%')
+			</if>
+			and u.id!='1' 
+			and u.isdel!='1'
+		</where>
+		GROUP BY u.id 
+		ORDER BY u.sort asc 
+	</select>
+	<!-- 根据用户ID批量删除 -->
+    <delete id="batchDelete" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where id in 
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">         
+        	#{item}  
+        </foreach>
+    </delete>
+    <!-- 根据用户ID删除 -->
+    <delete id="delete" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where id=#{id}
+    </delete>
+    <!-- 批量保存 -->
+	<insert id="batchSave" parameterType="list" flushCache="true" timeout="20000"> 
+		insert into <include refid="table"/>(<include refid="column"/>) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.id},#{item.account},#{item.password},#{item.name},#{item.tel},#{item.email},#{item.isdel},#{item.des},#{item.sort},#{customerid})
+		</foreach>
+    </insert>
+    <!-- 根据条件查询总数 -->
+	<select id="findByUserIds" resultType="map" parameterType="String" useCache="true" flushCache="false" timeout="10000">
+		select <include refid="column"/> from <include refid="table"/>
+		<where>
+			id in 
+			<foreach collection="array" index="index" item="item" open="(" separator="," close=")">         
+        		#{item}  
+        	</foreach>
+			and id!='1' 
+		</where>
+	</select>
+	<!-- 批量更新isdel   批量假删除 -->
+	<update id="batchUpdate" parameterType="String" flushCache="true" timeout="20000">    
+    	update <include refid="table"/>
+    	<set>
+			isdel='1'
+		</set>
+    	where id in 
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">         
+        	#{item}  
+        </foreach>
+    </update>
+</mapper>  

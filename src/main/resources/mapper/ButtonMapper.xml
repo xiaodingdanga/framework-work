@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.lx.framework.system.dao.ButtonDao">
+	<!-- 使用二级缓存
+	<cache/> -->
+	<!-- table表-->
+	<sql id="table">
+		sys_button
+	</sql>
+	<sql id="tablemenu">
+		sys_menu
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,menuid,name,sort,isuse
+	</sql>
+	<!-- 根据ID查询实例 -->
+	<select id="findById" resultType="map" parameterType="string" useCache="true" flushCache="false" timeout="10000">
+		select <include refid="column"/> from <include refid="table"/> where id=#{id}
+	</select>
+	<!-- 根据菜单ID查询数据 -->
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findAllByParam" resultType="map" useCache="true" flushCache="false" timeout="10000">
+		select b.id,b.menuid,b.name,b.sort,b.isuse,m.name as menuname 
+		from <include refid="table"/> as b 
+		left join <include refid="tablemenu"/> as m on b.menuid=m.id 
+		<where>
+    		<if test="menuid!=null and menuid!=''">
+    			b.menuid=#{menuid} 
+    		</if>
+    		<if test="isuse!=null and isuse!=''">
+    			and b.isuse=#{isuse} 
+    		</if>
+    		<if test="ids!=null and ids!=''">
+				and b.id in 
+				<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">         
+		        	#{item}  
+		        </foreach> 
+			</if>
+   		</where>
+		order by b.menuid,b.sort asc
+	</select>
+	<!-- 根据菜单ID删除 -->
+    <delete id="deleteByMenuId" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where menuid=#{menuid}
+    </delete>
+    <!-- 验证机构名称是否重复 -->
+	<select id="checkName" resultType="boolean" parameterType="map" useCache="true" flushCache="false" timeout="10000">
+		select count(*) as count from <include refid="table"/>
+		<where>
+    		<if test="id!=null and id!=''">
+    			id!=#{id}
+    		</if>
+    		<if test="name!=null and name!=''">
+    			and name=#{name}  
+    		</if>
+    		<if test="menuid!=null and menuid!=''">
+    			and menuid=#{menuid}  
+    		</if>
+    	</where>
+	</select>
+    <!-- 获取排序最大值 -->
+	<select id="getMaxSort" resultType="int" useCache="true" flushCache="false" timeout="10000">
+		select IFNULL(MAX(sort),0) as max from <include refid="table"/> where menuid=#{menuid}
+	</select>
+    <!-- 保存 -->
+	<insert id="save" parameterType="map" flushCache="true" timeout="20000"> 
+    	insert into <include refid="table"/>(<include refid="column"/>) values(#{id},#{menuid},#{name},#{sort},#{isuse})   
+    </insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="map" flushCache="true" timeout="20000">    
+    	update <include refid="table"/>
+    	<set>
+			name=#{name},
+			menuid=#{menuid},
+			isuse=#{isuse},
+			sort=#{sort}
+		</set>
+    	where id=#{id}
+    </update>
+    <!-- 删除 -->
+    <delete id="delete" parameterType="String" flushCache="true" timeout="20000">
+        delete from <include refid="table"/> where id=#{id}
+    </delete>
+    <!-- 查询所有 -->
+	<select id="findAll" resultType="map" useCache="true" flushCache="false" timeout="10000">
+		select <include refid="column"/> from <include refid="table"/> 
+	</select>
+</mapper>  

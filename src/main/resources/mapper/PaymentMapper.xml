@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lx.framework.system.dao.PaymentDao">
+	<!-- 使用二级缓存 <cache/> -->
+	<!-- table表 -->
+	<sql id="table">
+		payment_mode
+	</sql>
+	<!-- column列 -->
+	<sql id="column">
+		id,name,customerid
+	</sql>
+	<!-- 根据条件查询总数(分页) -->
+	<select id="getCountByParam" resultType="int" useCache="true"
+		flushCache="false" timeout="10000">
+		select count(id) from
+		<include refid="table" />
+		<where>
+			<if test="id!=null and id!=''">
+				id=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and customerid=#{customerid}
+			</if>
+			and id != '0' and id != '00' and id != '000' and id != '999'
+		</where>
+	</select>
+	<!-- 根据条件查询(分页) -->
+	<!-- resultType 数据中元素类型如返回list,内容为map -->
+	<select id="findPageByParam" resultType="map" useCache="true"
+		flushCache="false" timeout="10000">
+		select
+		<include refid="column" />
+		from
+		<include refid="table" />
+		<where>
+			<if test="id!=null and id!=''">
+				id=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and customerid=#{customerid}
+			</if>
+			and id != '0' and id != '00' and id != '000' and id != '999'
+		</where>
+		limit #{start},#{pageSize}
+	</select>
+	<!-- 验证账号是否重复 -->
+	<select id="checkName" resultType="boolean" parameterType="map"
+		useCache="true" flushCache="false" timeout="10000">
+		select count(DISTINCT id) as count from
+		<include refid="table" />
+		u
+		<where>
+			<if test="id!=null and id!=''">
+				id!=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and name=#{name}
+			</if>
+			<if test="customerid!=null and customerid!=''">
+				and customerid=#{customerid}
+			</if>
+		</where>
+	</select>
+	<!-- 保存 -->
+	<insert id="save" parameterType="map" flushCache="true" timeout="20000">
+		insert into
+		<include refid="table" />
+		(
+		<include refid="column" />
+		)
+		values(#{id},#{name},#{customerid})
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="map" flushCache="true"
+		timeout="20000">
+		update
+		<include refid="table" />
+		<set>
+			name=#{name},
+			customerid=#{customerid},
+		</set>
+		where id=#{id}
+	</update>
+	<!-- 根据ID查询实例 -->
+	<select id="findById" resultType="map" parameterType="String"
+		useCache="true" flushCache="false" timeout="10000">
+		select
+		<include refid="column" />
+		from
+		<include refid="table" />
+		<where>
+			id=#{id}
+		</where>
+	</select>
+	<!-- 根据id删除分销商 -->
+	<delete id="delete" parameterType="String" flushCache="true"
+		timeout="20000">
+		delete from
+		<include refid="table" />
+		where id =#{id}
+	</delete>
+	<!--根据 customerid查询所有 -->
+	<select id="findByCustomerId" parameterType="map" resultType="map"
+		useCache="true" flushCache="false" timeout="20000">
+		select
+		<include refid="column" />
+		from
+		<include refid="table" />
+		<where>
+			<if test="customerid!=null and customerid!=''">
+				customerid=#{customerid}
+			</if>
+			and id != '0' and id != '00' and id != '000' and id != '999'
+		</where>
+	</select>
+</mapper>  
